@@ -208,9 +208,19 @@ function addBotMessage(text) {
   if (!msgs) return;
   const div = document.createElement('div');
   div.className = 'msg bot';
+  
+  // Basic XSS protection: Escape HTML but allow <br>
+  const escapedText = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/\n/g, '<br>');
+
   div.innerHTML = `
     <div class="msg-avatar">🗳️</div>
-    <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
+    <div class="msg-bubble">${escapedText}</div>
   `;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
@@ -221,13 +231,21 @@ function addUserMessage(text) {
   if (!msgs) return;
   const div = document.createElement('div');
   div.className = 'msg user';
-  div.innerHTML = `
-    <div class="msg-bubble">${text}</div>
-    <div class="msg-avatar">👤</div>
-  `;
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = '👤';
+  
+  div.appendChild(bubble);
+  div.appendChild(avatar);
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
+
 
 function showTyping() {
   const msgs = document.getElementById('chatMessages');

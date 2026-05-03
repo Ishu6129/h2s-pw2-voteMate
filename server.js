@@ -9,89 +9,159 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const winston = require('winston');
+const { LoggingWinston } = require('@google-cloud/logging-winston');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Structured Logging for Google Cloud
+const transports = [new winston.transports.Console()];
+
+// Only add Google Cloud logging if we're in a cloud environment
+if (process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT) {
+  try {
+    const loggingWinston = new LoggingWinston();
+    transports.push(loggingWinston);
+  } catch (err) {
+    console.error('Failed to initialize Google Cloud Logging:', err.message);
+  }
+}
+
+const logger = winston.createLogger({
+  level: 'info',
+  transports: transports,
+});
+
+
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "img-src": ["'self'", "data:", "https://*"],
+      "script-src": ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+      "connect-src": ["'self'", "https://*"],
+    },
+  },
+}));
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' }
+});
+app.use('/api/', limiter);
 
 app.use(cors());
 app.use(express.json());
 
-// ── Gemini API Config ──────────────────────────────────
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
-// gemini-2.5-flash — confirmed available via v1beta REST API
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+// Simple In-Memory Cache
+const cache = new Map();
+const CACHE_TTL = 1000 * 60 * 60; // 1 hour
+
+const VITE_GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+const API_VERSION = 'v1beta';
+const MODEL_NAME = 'gemini-2.5-flash';
+
+if (!VITE_GEMINI_API_KEY) {
+  logger.warn('⚠️ GEMINI_API_KEY not found in environment variables');
+} else {
+  logger.info('🔑 API Key Status: Configured');
+}
 
 app.post('/api/chat', async (req, res) => {
   const { message, lang, langName } = req.body;
 
-  if (!message) {
+  if (!message || typeof message !== 'string') {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  if (!GEMINI_API_KEY) {
-    console.error('SERVER_ERROR: GEMINI_API_KEY is missing in environment');
+  // Check Cache
+  const cacheKey = `${lang}:${message.toLowerCase().trim()}`;
+  if (cache.has(cacheKey)) {
+    const cached = cache.get(cacheKey);
+    if (Date.now() - cached.timestamp < CACHE_TTL) {
+      logger.info(`[Cache Hit] Request: "${message.substring(0, 20)}..."`);
+      return res.json(cached.data);
+    }
+    cache.delete(cacheKey);
+  }
+
+  logger.info(`[Chat Request] Lang: ${langName || lang}, Msg: "${message.substring(0, 30)}..."`);
+
+  if (!VITE_GEMINI_API_KEY) {
     return res.status(500).json({ error: 'API key not configured on server' });
   }
 
-  const systemPrompt = `You are VoteMate, an Indian election assistant. 
-  IMPORTANT: You must respond ONLY in the ${langName || 'English'} language. 
-  Even if the user asks in English, translate your answer to ${langName || 'English'}.
-  Help citizens with voter registration and election info. Be concise. 🇮🇳`;
-
   try {
-    console.log(`[${new Date().toISOString()}] Chat request: "${message.substring(0, 50)}..." (Lang: ${langName})`);
+    const GEMINI_URL = `https://generativelanguage.googleapis.com/${API_VERSION}/models/${MODEL_NAME}:generateContent?key=${VITE_GEMINI_API_KEY}`;
 
     const response = await fetch(GEMINI_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{
-          role: 'user',
-          parts: [{ text: `${systemPrompt}\n\nUser Question: ${message}` }]
+          parts: [{
+            text: `You are VoteMate, an expert assistant for Indian elections. 
+            User is asking in ${langName || 'their language'}. 
+            Keep response educational, neutral, and helpful. 
+            Use local context (Lok Sabha, Vidhan Sabha, ECI, NVSP).
+            IMPORTANT: Respond ONLY in ${langName || 'the same language as the user'}.
+            
+            Question: ${message}`
+          }]
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 500,
+          topK: 40,
           topP: 0.95,
-          topK: 40
+          maxOutputTokens: 1024,
         }
       })
     });
 
     const data = await response.json();
 
-    if (!response.ok) {
-      console.error('GEMINI_API_ERROR:', JSON.stringify(data, null, 2));
-      return res.status(response.status).json({ 
-        error: 'Gemini API Error', 
-        details: data.error?.message || 'Unknown error' 
-      });
+    if (data.error) {
+      logger.error('Gemini API Error:', data.error);
+      throw new Error(data.error.message || 'Gemini API Error');
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const finalResponse = { text: botMessage, source: 'gemini' };
+    
+    // Save to Cache
+    cache.set(cacheKey, { data: finalResponse, timestamp: Date.now() });
 
-    if (!text) {
-      if (data.promptFeedback?.blockReason) {
-        return res.json({ 
-          text: "I'm sorry, but I cannot answer that specific question due to safety filters. Please try asking about the election process instead.",
-          source: 'gemini_blocked'
-        });
-      }
-      throw new Error('Empty response from Gemini');
-    }
-
-    res.json({ text, source: 'gemini' });
-
-  } catch (err) {
-    console.error('SERVER_ERROR:', err.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.json(finalResponse);
+  } catch (error) {
+    logger.error('Chat API Error:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to get AI response',
+      details: error.message
+    });
   }
 });
+
+// Health Check for Google Cloud Run
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 
 // ── Serve static frontend files (after API routes) ────
 app.use(express.static('.'));
 
-app.listen(PORT, () => {
-  console.log(`🚀 VoteMate Backend running at http://localhost:${PORT}`);
-  console.log(`🔑 API Key Status: ${GEMINI_API_KEY ? 'Configured' : 'MISSING'}`);
-  console.log(`🤖 Gemini Model: gemini-1.5-flash (v1beta)`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    logger.info(`🚀 VoteMate Backend running at http://localhost:${PORT}`);
+    logger.info(`🔑 API Key Status: ${VITE_GEMINI_API_KEY ? 'Configured' : 'MISSING'}`);
+    logger.info(`🤖 Gemini Model: ${MODEL_NAME} (${API_VERSION})`);
+  });
+}
+
+module.exports = app;
+
