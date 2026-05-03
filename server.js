@@ -49,10 +49,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "script-src": ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "'unsafe-inline'"],
+      "script-src": ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://www.googletagmanager.com", "'unsafe-inline'"],
       "script-src-attr": ["'unsafe-inline'"],
       "img-src": ["'self'", "data:", "https://*"],
-      "connect-src": ["'self'", "https://*"],
+      "connect-src": ["'self'", "https://*", "https://www.google-analytics.com", "https://region1.google-analytics.com"],
     },
   },
 }));
@@ -140,7 +140,13 @@ app.post('/api/chat', async (req, res) => {
       throw new Error(data.error.message || 'Gemini API Error');
     }
 
+    const botMessage = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!botMessage) {
+      throw new Error('Empty response from Gemini');
+    }
+
     const finalResponse = { text: botMessage, source: 'gemini' };
+
     
     // Save to Cache
     cache.set(cacheKey, { data: finalResponse, timestamp: Date.now() });

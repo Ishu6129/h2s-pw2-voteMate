@@ -13,8 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 2. Try-catch initialization to prevent one failure from breaking the whole app
   try { initParticles(); } catch(e) { console.warn('Particles failed:', e); }
-  try { initGSAP(); } catch(e) { console.warn('GSAP failed:', e); }
   try { renderAll(); } catch(e) { console.warn('Render failed:', e); }
+  try { initGSAP(); } catch(e) { console.warn('GSAP failed:', e); }
+
   
   setupNavScroll();
   setupScrollTop();
@@ -161,12 +162,16 @@ function setupGSAPAnimations() {
   });
 
   // Photo cards stagger
-  gsap.utils.toArray('.photo-card').forEach((card, i) => {
-    gsap.fromTo(card, { opacity: 0, y: 30, scale: 0.9 }, {
-      opacity: 1, y: 0, scale: 1, duration: 0.55, ease, delay: i * 0.12,
-      scrollTrigger: { trigger: '.photo-gallery-section', start: 'top 90%', toggleActions: 'play none none none' }
+  const photoCards = gsap.utils.toArray('.photo-card');
+  if (photoCards.length > 0) {
+    photoCards.forEach((card, i) => {
+      gsap.fromTo(card, { opacity: 0, y: 30, scale: 0.9 }, {
+        opacity: 1, y: 0, scale: 1, duration: 0.55, ease, delay: i * 0.12,
+        scrollTrigger: { trigger: '.photo-gallery-section', start: 'top 90%', toggleActions: 'play none none none' }
+      });
     });
-  });
+  }
+
 
   // Election banner
   gsap.fromTo('.election-banner', { opacity: 0, y: -20 }, {
@@ -187,15 +192,19 @@ function setupParallax() {
   if (!window.gsap || !window.ScrollTrigger) return;
   
   // Parallax horizontal rows
-  gsap.to('.photo-card', {
-    x: (i) => i % 2 === 0 ? -40 : 40,
-    scrollTrigger: {
-      trigger: '.photo-gallery',
-      start: 'top bottom',
-      end: 'bottom top',
-      scrub: 1
-    }
-  });
+  const pCards = gsap.utils.toArray('.photo-card');
+  if (pCards.length > 0) {
+    gsap.to(pCards, {
+      x: (i) => i % 2 === 0 ? -40 : 40,
+      scrollTrigger: {
+        trigger: '.photo-gallery',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1
+      }
+    });
+  }
+
 
   // Floating blobs parallax
   gsap.to('.hero-blob', {
