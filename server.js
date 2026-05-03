@@ -13,9 +13,17 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const winston = require('winston');
 const { LoggingWinston } = require('@google-cloud/logging-winston');
+const { ErrorReporting } = require('@google-cloud/error-reporting');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Google Cloud Error Reporting
+let errors;
+if (process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT) {
+  errors = new ErrorReporting();
+}
+
 
 // Structured Logging for Google Cloud
 const transports = [new winston.transports.Console()];
@@ -140,12 +148,19 @@ app.post('/api/chat', async (req, res) => {
     res.json(finalResponse);
   } catch (error) {
     logger.error('Chat API Error:', error.message);
+    
+    // Report error to Google Cloud Error Reporting
+    if (errors) {
+      errors.report(error);
+    }
+
     res.status(500).json({ 
       error: 'Failed to get AI response',
       details: error.message
     });
   }
 });
+
 
 // Health Check for Google Cloud Run
 app.get('/health', (req, res) => {

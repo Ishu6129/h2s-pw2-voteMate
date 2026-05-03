@@ -75,6 +75,16 @@
   }
 }
 
+/* Vertical Scaling for Short Viewports */
+@media (max-height: 700px) {
+  .onboarding-logo { margin-bottom: 10px; }
+  .onboarding-logo .logo-chakra { width: 40px; height: 40px; font-size: 24px; }
+  .onboarding-sub { margin-bottom: 12px; }
+  .lang-grid { gap: 8px; margin-bottom: 20px; }
+  .lang-card { padding: 8px 4px; }
+}
+
+
 .lang-card {
   background: var(--bg-surface);
   border: 1px solid var(--border);
