@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoteMate – India's Election Assistant</title>
+  <meta name="description" content="VoteMate helps Indian citizens understand the election process, timelines, voter registration in 7 languages." />
+  <meta name="keywords" content="India election, voter registration, Lok Sabha, Vidhan Sabha, ECI, NVSP, vote" />
+  <meta name="theme-color" content="#FF9933" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="VoteMate – India's Election Assistant" />
+  <meta property="og:description" content="Understand your vote. Election process, timelines, and registration guide in 7 Indian languages." />
+  <meta property="og:type" content="website" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/hero.css" />
+  <link rel="stylesheet" href="css/sections.css" />
+  <link rel="stylesheet" href="css/guide.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <link rel="stylesheet" href="css/onboarding.css" />
+  <link rel="stylesheet" href="css/mobile.css" />
+</head>
+<body>
+
+  <!-- Splash Screen -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="logo-chakra">☸</div>
+    <p data-i18n="splash_loading">Loading VoteMate</p>
+  </div>
+
+  <!-- Onboarding Overlay -->
+  <div id="onboardingOverlay" class="onboarding-overlay" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <div class="onboarding-content">
+      <div class="onboarding-logo">
+        <div class="logo-chakra">☸</div>
+        <div class="logo-text">Vote<span class="logo-accent">Mate</span></div>
+      </div>
+      <h2 class="onboarding-title" id="onboarding-title">Welcome to VoteMate</h2>
+      <p class="onboarding-sub" data-i18n="onboarding_sub">Please select your preferred language to continue</p>
+      
+      <div class="lang-grid" id="onboardingLangGrid">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="onboarding-footer">
+        <button class="btn-primary" id="btnEnterApp" disabled onclick="enterApp()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tricolor Top Bar -->
+  <div class="tricolor-bar" role="presentation">
+    <div class="tc-saffron"></div>
+    <div class="tc-white"></div>
+    <div class="tc-green"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav id="navbar" role="navigation" aria-label="Main Navigation">
+    <div class="nav-container">
+      <div class="nav-logo" onclick="scrollToSection('hero')" role="button" tabindex="0" aria-label="VoteMate Home">
+        <div class="logo-chakra" aria-hidden="true">☸</div>
+        <span class="logo-text">Vote<span class="logo-accent">Mate</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="#guide"        data-i18n="nav_guide">Guide</a>
+        <a href="#process"      data-i18n="nav_process">Process</a>
+        <a href="#timeline"     data-i18n="nav_timeline">Timeline</a>
+        <a href="#registration" data-i18n="nav_register">Register</a>
+        <a href="#faq"          data-i18n="nav_faq">FAQ</a>
+      </div>
+      <div class="nav-controls">
+        <div class="election-toggle" role="group" aria-label="Election Type">
+          <button class="toggle-btn active" id="btn-loksabha" onclick="switchElection('loksabha')">Lok Sabha</button>
+          <button class="toggle-btn"        id="btn-state"    onclick="switchElection('state')">State</button>
+        </div>
+        <div class="lang-selector">
+          <button class="lang-btn" id="langBtn" onclick="toggleLangMenu()" aria-haspopup="true" aria-expanded="false" aria-label="Select Language">
+            <span id="currentLangFlag">🇮🇳</span>
+            <span id="currentLangName">EN</span>
+            <span class="chevron">▾</span>
+          </button>
+          <div class="lang-menu" id="langMenu" role="menu"></div>
+        </div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Toggle Menu">☰</button>
+      </div>
+    </div>
+    <div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile Navigation">
+      <a href="#guide"        data-i18n="nav_guide"    onclick="toggleMobileMenu()">Guide</a>
+      <a href="#process"      data-i18n="nav_process"  onclick="toggleMobileMenu()">Process</a>
+      <a href="#timeline"     data-i18n="nav_timeline" onclick="toggleMobileMenu()">Timeline</a>
+      <a href="#registration" data-i18n="nav_register" onclick="toggleMobileMenu()">Register</a>
+      <a href="#faq"          data-i18n="nav_faq"      onclick="toggleMobileMenu()">FAQ</a>
+      <div class="mobile-election-toggle">
+        <button class="toggle-btn active" onclick="switchElection('loksabha');toggleMobileMenu()">Lok Sabha</button>
+        <button class="toggle-btn"        onclick="switchElection('state');toggleMobileMenu()">State Assembly</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero" aria-label="Hero Section">
+    <div class="hero-bg" aria-hidden="true">
+      <!-- Decorative Blobs for GSAP -->
+      <div class="hero-blob hero-blob-1"></div>
+      <div class="hero-blob hero-blob-2"></div>
+      <div class="hero-blob hero-blob-3"></div>
+      
+      <div class="stripe stripe-saffron"></div>
+      <div class="stripe stripe-white"></div>
+      <div class="stripe stripe-green"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-glow-saffron"></div>
+      <div class="hero-glow-green"></div>
+      <canvas id="particleCanvas" aria-hidden="true"></canvas>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge" data-i18n="hero_badge">🇮🇳 India's Smart Election Assistant</div>
+      <h1 class="hero-title">
+        <span data-i18n="hero_title1">Know Your</span>
+        <span class="gradient-text" data-i18n="hero_title2">Vote</span>
+      </h1>
+      <p class="hero-subtitle" data-i18n="hero_subtitle">
+        Understand elections, timelines, and your democratic rights — in your language
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary"   onclick="scrollToSection('guide')"   data-i18n="hero_cta1">Explore Process</button>
+        <button class="btn-secondary" onclick="openChat()"                  data-i18n="hero_cta2">💬 Chat with VoteMate</button>
+      </div>
+      <div class="hero-stats" role="list" aria-label="Key Statistics">
+        <div class="stat-item" role="listitem"><span class="stat-num">97Cr+</span><span class="stat-lbl" data-i18n="stat1">Registered Voters</span></div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item" role="listitem"><span class="stat-num">543</span><span class="stat-lbl" data-i18n="stat2">Lok Sabha Seats</span></div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item" role="listitem"><span class="stat-num">4028</span><span class="stat-lbl" data-i18n="stat3">Assembly Seats</span></div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item" role="listitem"><span class="stat-num">1950</span><span class="stat-lbl" data-i18n="stat4">Voter Helpline</span></div>
+      </div>
+    </div>
+    <div class="hero-scroll" aria-hidden="true"><div class="scroll-dot"></div></div>
+  </section>
+
+  <!-- Photo Gallery (India Voting & Democracy) -->
+  <div class="photo-gallery-section">
+    <p class="photo-gallery-label" data-i18n="photo_gallery_label">🇮🇳 India's Democracy in Pictures</p>
+    <div class="photo-gallery" id="photoStrip" role="region" aria-label="India Democracy Photo Gallery"></div>
+  </div>
+
+  <!-- Election Banner -->
+  <div class="election-banner" id="electionBanner" role="banner">
+    <div class="banner-inner">
+      <span id="bannerIcon" aria-hidden="true">🏛️</span>
+      <div>
+        <div class="banner-title" id="bannerTitle">Lok Sabha (General) Election</div>
+        <div class="banner-sub"   id="bannerSub">Lower House of Parliament — held every 5 years</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HOW TO USE GUIDE ===== -->
+  <section id="guide" aria-labelledby="guide-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge" data-i18n="guide_badge">Getting Started</div>
+        <h2 class="section-title" id="guide-heading">
+          <span data-i18n="guide_title">How to Use</span>
+          <span class="gradient-text" data-i18n="guide_title2">VoteMate</span>
+        </h2>
+        <p class="section-sub" data-i18n="guide_sub">Your step-by-step guide to navigating VoteMate</p>
+      </div>
+
+      <!-- 6 Steps -->
+      <div class="guide-steps" id="guideSteps"></div>
+
+      <!-- Demo Banner -->
+      <div class="guide-demo-banner">
+        <div class="guide-demo-text">
+          <h3 data-i18n="demo_title">🤖 AI-Powered Election Answers</h3>
+          <p data-i18n="demo_desc">VoteMate uses Google's Gemini AI to answer any election question in your language. Add your free API key to unlock full AI power — or use the built-in rule-based responses instantly.</p>
+          <button class="btn-primary" onclick="openChat()" data-i18n="demo_cta">💬 Try the Chat</button>
+        </div>
+        <div class="guide-demo-visual" aria-hidden="true">🗳️</div>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="guide-features" id="guideFeatures"></div>
+    </div>
+  </section>
+
+  <!-- ===== ELECTION PROCESS ===== -->
+  <section id="process" aria-labelledby="process-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge" data-i18n="process_badge">How It Works</div>
+        <h2 class="section-title" id="process-heading">
+          <span data-i18n="process_title">The Election</span>
+          <span class="gradient-text" data-i18n="process_title2">Process</span>
+        </h2>
+        <p class="section-sub" data-i18n="process_sub">Key phases of India's democratic election system</p>
+      </div>
+      <div class="process-grid" id="processGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== TIMELINE ===== -->
+  <section id="timeline" aria-labelledby="timeline-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge" data-i18n="timeline_badge">Step by Step</div>
+        <h2 class="section-title" id="timeline-heading">
+          <span data-i18n="timeline_title">Election</span>
+          <span class="gradient-text" data-i18n="timeline_title2">Timeline</span>
+        </h2>
+        <p class="section-sub" data-i18n="timeline_sub">From announcement to result — every milestone explained</p>
+      </div>
+      <div class="timeline-wrap" id="timelineContainer"></div>
+    </div>
+  </section>
+
+  <!-- ===== REGISTRATION ===== -->
+  <section id="registration" aria-labelledby="reg-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge" data-i18n="reg_badge">Get Started</div>
+        <h2 class="section-title" id="reg-heading">
+          <span data-i18n="reg_title">Voter</span>
+          <span class="gradient-text" data-i18n="reg_title2">Registration</span>
+        </h2>
+        <p class="section-sub" data-i18n="reg_sub">Everything you need to register and vote</p>
+      </div>
+      <div class="reg-grid">
+        <div class="reg-card">
+          <div class="reg-icon" aria-hidden="true">✅</div>
+          <h3 data-i18n="elig_title">Eligibility</h3>
+          <ul id="eligibilityList" class="check-list" aria-label="Eligibility Criteria"></ul>
+        </div>
+        <div class="reg-card">
+          <div class="reg-icon" aria-hidden="true">📋</div>
+          <h3 data-i18n="steps_title">Steps to Register</h3>
+          <div id="regSteps" class="steps-list"></div>
+        </div>
+        <div class="reg-card">
+          <div class="reg-icon" aria-hidden="true">📄</div>
+          <h3 data-i18n="docs_title">Documents Needed</h3>
+          <ul id="docsList" class="check-list" aria-label="Required Documents"></ul>
+        </div>
+        <div class="reg-card resources-card">
+          <div class="reg-icon" aria-hidden="true">🔗</div>
+          <h3 data-i18n="res_title">Official Resources</h3>
+          <div class="resource-links">
+            <a href="https://www.nvsp.in"            target="_blank" rel="noopener noreferrer" class="res-link"><span>🗳️</span><div><div class="res-name">NVSP Portal</div><div class="res-desc">National Voters' Service Portal</div></div><span aria-hidden="true">→</span></a>
+            <a href="https://eci.gov.in"             target="_blank" rel="noopener noreferrer" class="res-link"><span>🏛️</span><div><div class="res-name">ECI Website</div><div class="res-desc">Election Commission of India</div></div><span aria-hidden="true">→</span></a>
+            <a href="https://voterportal.eci.gov.in" target="_blank" rel="noopener noreferrer" class="res-link"><span>👤</span><div><div class="res-name">Voter Portal</div><div class="res-desc">Check registration status</div></div><span aria-hidden="true">→</span></a>
+            <div class="res-link helpline" role="note" aria-label="Voter Helpline 1950"><span>📞</span><div><div class="res-name">Voter Helpline</div><div class="res-desc">1950 (Toll Free)</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section id="faq" aria-labelledby="faq-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge" data-i18n="faq_badge">Quick Answers</div>
+        <h2 class="section-title" id="faq-heading">
+          <span data-i18n="faq_title">Frequently Asked</span>
+          <span class="gradient-text">Questions</span>
+        </h2>
+      </div>
+      <div class="faq-wrap" id="faqContainer" role="list"></div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer id="footer" role="contentinfo">
+    <div class="tricolor-bar footer-bar" role="presentation">
+      <div class="tc-saffron"></div>
+      <div class="tc-white"></div>
+      <div class="tc-green"></div>
+    </div>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-text">Vote<span class="logo-accent">Mate</span></span>
+        <p data-i18n="footer_desc">Empowering Indian voters with knowledge</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer Navigation">
+        <a href="#guide"        data-i18n="nav_guide">Guide</a>
+        <a href="#process"      data-i18n="nav_process">Process</a>
+        <a href="#timeline"     data-i18n="nav_timeline">Timeline</a>
+        <a href="#registration" data-i18n="nav_register">Register</a>
+        <a href="#faq"          data-i18n="nav_faq">FAQ</a>
+      </nav>
+      <div class="footer-note">
+        <p data-i18n="footer_disclaimer">Educational tool only. For official info, visit eci.gov.in</p>
+        <p data-i18n="footer_made_by">Made with ❤️ for India's Democracy</p>
+      </div>
+    </div>
+  </footer>
+
+
+
+  <!-- Screen reader only utility -->
+  <style>.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}</style>
+
+  <!-- Floating Elements -->
+  <div class="chatbot-wrap initial-hide" id="chatbotWrap">
+    <button class="chat-fab" id="chatFab" onclick="toggleChat()" aria-label="Open VoteMate Chat" aria-haspopup="dialog">
+      <span class="fab-icon" aria-hidden="true">💬</span>
+      <span class="fab-label" data-i18n="fab_label">Ask VoteMate</span>
+      <span class="fab-badge" id="fabBadge" style="display:none" aria-label="1 new message">1</span>
+    </button>
+    <div class="chat-window" id="chatWindow" role="dialog" aria-modal="true" aria-label="VoteMate Chat Assistant">
+      <div class="chat-header">
+        <div class="chat-hdr-left">
+          <div class="chat-avatar" aria-hidden="true">🗳️</div>
+          <div>
+            <div class="chat-name">VoteMate</div>
+            <div class="chat-status" id="chatStatus">● Online · Powered by Gemini</div>
+          </div>
+        </div>
+        <div class="chat-hdr-right">
+          <button class="chat-icon-btn" onclick="toggleChat()" aria-label="Close Chat">✕</button>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat Messages"></div>
+      <div class="chat-suggestions" id="chatSuggestions" role="group" aria-label="Quick Questions"></div>
+      <div class="chat-input-wrap">
+        <label for="chatInput" class="sr-only">Type your question</label>
+        <input type="text" id="chatInput" class="chat-input"
+          data-i18n-placeholder="chat_placeholder"
+          placeholder="Ask about elections..."
+          onkeypress="handleChatKey(event)"
+          autocomplete="off"
+          aria-label="Chat input" />
+        <button class="chat-send" id="sendBtn" onclick="sendMessage()" aria-label="Send Message">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Scroll to top">↑</button>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/translations.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/chatbot.js?v=2"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

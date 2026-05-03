@@ -1,0 +1,214 @@
+/* =============================================
+   VOTEMATE — Soft Light Theme (India Tricolor)
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+
+/* === CSS VARIABLES — SOFT LIGHT PALETTE === */
+:root {
+  /* India Tricolor */
+  --saffron:        #E8720C;
+  --saffron-light:  #FF9933;
+  --saffron-pale:   #FFF3E0;
+  --saffron-mid:    #FFE0B2;
+  --white:          #FFFFFF;
+  --green:          #2E7D32;
+  --green-light:    #43A047;
+  --green-pale:     #E8F5E9;
+  --green-mid:      #C8E6C9;
+  --navy:           #1A237E;
+
+  /* Backgrounds — warm cream light */
+  --bg-base:       transparent;
+  --bg-surface:    rgba(255, 248, 238, 0.7);
+  --bg-card:       rgba(255, 255, 255, 0.9);
+  --bg-card-hover: rgba(255, 252, 245, 0.95);
+  --bg-section-alt: rgba(243, 248, 243, 0.6);
+
+  /* Text — warm dark */
+  --text-1: #1C1C2E;
+  --text-2: #3C3C58;
+  --text-3: #5C5C78;
+
+  /* Borders */
+  --border:       rgba(0,0,0,0.08);
+  --border-hover: rgba(232,114,12,0.35);
+
+  /* Gradients */
+  --grad-saffron:  linear-gradient(135deg, #E8720C, #FF9933);
+  --grad-green:    linear-gradient(135deg, #2E7D32, #43A047);
+  --grad-hero:     linear-gradient(135deg, #FFF8EE 0%, #FFF3E0 50%, #E8F5E9 100%);
+  --grad-tricolor: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #fff 33%, #fff 66%, #138808 66%);
+
+  /* Shadows — soft and warm */
+  --shadow-sm:      0 2px 8px rgba(232,114,12,0.08);
+  --shadow-md:      0 6px 24px rgba(0,0,0,0.10);
+  --shadow-lg:      0 12px 48px rgba(0,0,0,0.12);
+  --shadow-saffron: 0 8px 32px rgba(232,114,12,0.25);
+  --shadow-green:   0 8px 32px rgba(46,125,50,0.20);
+  --shadow-card:    0 4px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05);
+
+  /* Radius */
+  --r-sm:   10px;
+  --r-md:   16px;
+  --r-lg:   24px;
+  --r-xl:   36px;
+  --r-full: 9999px;
+
+  /* Transitions — ease-in-out */
+  --t:        all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --t-fast:   all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --t-slow:   all 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --t-bounce: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-spring: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* Z layers */
+  --z-nav:   100;
+  --z-chat:  200;
+  --z-modal: 300;
+}
+
+/* === RESET === */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(rgba(255, 251, 244, 0.9), rgba(255, 251, 244, 0.9)), url('../assets/images/tricolor-bg.png');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  color: var(--text-1);
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  section { padding: 64px 0; }
+  .section-header { margin-bottom: 40px; }
+  .section-title { font-size: 28px; }
+  .container { padding: 0 20px; }
+}
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+img { max-width: 100%; display: block; }
+
+/* === TRICOLOR BAR === */
+.tricolor-bar { display:flex; height:5px; width:100%; }
+.tc-saffron { background: var(--saffron-light); flex:1; }
+.tc-white   { background: #FFFFFF; flex:1; border-top:1px solid rgba(0,0,0,0.06); border-bottom:1px solid rgba(0,0,0,0.06); }
+.tc-green   { background: var(--green-light); flex:1; }
+
+/* === CONTAINER === */
+.container { max-width: 1200px; margin:0 auto; padding:0 24px; }
+
+/* === SECTION LAYOUT === */
+section { padding: 96px 0; background: var(--bg-base); }
+section:nth-child(even) { background: var(--bg-section-alt); }
+
+/* === SECTION HEADER === */
+.section-header { text-align:center; margin-bottom:60px; }
+.section-badge {
+  display:inline-block;
+  padding:7px 20px;
+  border-radius: var(--r-full);
+  background: var(--saffron-pale);
+  border: 1px solid var(--saffron-mid);
+  color: var(--saffron);
+  font-size:12px; font-weight:700;
+  letter-spacing:0.8px; text-transform:uppercase;
+  margin-bottom:14px;
+  transition: var(--t);
+}
+.section-title {
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight:800; line-height:1.2;
+  color: var(--text-1); margin-bottom:14px;
+}
+.section-sub {
+  font-size:16px; color: var(--text-2);
+  max-width:540px; margin:0 auto; line-height:1.7;
+}
+
+/* === GRADIENT TEXT === */
+.gradient-text {
+  background: var(--grad-saffron);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.gradient-text-green {
+  background: var(--grad-green);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+/* === BUTTONS === */
+.btn-primary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 32px; border-radius:var(--r-full);
+  background: var(--grad-saffron);
+  color:#fff; font-weight:700; font-size:15px;
+  transition: var(--t);
+  box-shadow: var(--shadow-saffron);
+  border: none;
+}
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(232,114,12,0.4);
+}
+.btn-primary:active { transform: translateY(-1px) scale(0.99); }
+
+.btn-secondary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 32px; border-radius:var(--r-full);
+  border: 2px solid var(--border-hover);
+  background: rgba(232,114,12,0.06);
+  color: var(--saffron); font-weight:600; font-size:15px;
+  transition: var(--t);
+}
+.btn-secondary:hover {
+  background: var(--saffron-pale);
+  border-color: var(--saffron);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-saffron);
+}
+.btn-primary.sm { padding:10px 22px; font-size:14px; }
+.btn-secondary.sm { padding:10px 22px; font-size:14px; }
+
+/* === SCROLL TOP === */
+.scroll-top-btn {
+  position:fixed; bottom:100px; right:24px;
+  width:44px; height:44px; border-radius:50%;
+  background: var(--grad-saffron);
+  color:white; font-size:18px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: var(--shadow-saffron);
+  opacity:0; transform:translateY(20px);
+  transition: var(--t); z-index: 9998; pointer-events:none;
+}
+.scroll-top-btn.visible {
+  opacity:1; transform:translateY(0); pointer-events:all;
+}
+.scroll-top-btn:hover { transform:translateY(-4px); background: var(--saffron); }
+
+/* === SCREEN READER === */
+.sr-only {
+  position:absolute; width:1px; height:1px; padding:0;
+  margin:-1px; overflow:hidden; clip:rect(0,0,0,0);
+  white-space:nowrap; border:0;
+}
+
+/* === SMOOTH PAGE SCROLL REVEAL (CSS fallback) === */
+.reveal {
+  opacity:0; transform:translateY(32px);
+  transition: opacity 0.6s cubic-bezier(0.25,0.46,0.45,0.94),
+              transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* === DECORATIVE BLOBS === */
+.blob {
+  position:absolute; border-radius:50%;
+  filter: blur(60px); pointer-events:none; z-index:0;
+}
+.blob-saffron { background: rgba(255,153,51,0.15); }
+.blob-green   { background: rgba(67,160,71,0.12); }
+.blob-white   { background: rgba(255,255,255,0.8); }
